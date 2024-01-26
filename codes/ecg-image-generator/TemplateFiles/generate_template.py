@@ -39,7 +39,7 @@ def generate_template(header_file, font_type, mode, template_file):
 
             if col == 'Age' or col == 'Height' or col == 'Weight':
                 val = val.replace(" ", "")
-                if val == 'Unknown':
+                if val == 'Unknown' or val == "NaN":
                     attributes[str(col)] = ''
                 else:
                     attributes[str(col)] = int(val)
