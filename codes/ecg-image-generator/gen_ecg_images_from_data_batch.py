@@ -1,13 +1,18 @@
-import os, sys, argparse
-import random
+import argparse
 import csv
+import os
+import random
+import sys
+import warnings
+
+from tqdm import tqdm
+
 from helper_functions import find_records
 from extract_leads import get_paper_ecg
 from HandwrittenText.generate import get_handwritten
 from CreasesWrinkles.creases import get_creased
 from ImageAugmentation.augment import get_augment
 from gen_ecg_image_from_data import run_single_file
-import warnings
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 warnings.filterwarnings("ignore")
@@ -23,6 +28,7 @@ def get_parser():
     parser.add_argument('-r','--resolution',type=int,required=False,default = 200)
     parser.add_argument('--pad_inches',type=int,required=False,default=0)
     parser.add_argument('-ph','--print_header', action="store_true",default=False)
+    parser.set_defaults(print_header=True)
     parser.add_argument('--num_columns',type=int,default = -1)
     parser.add_argument('--full_mode', type=str,default='II')
 
@@ -73,38 +79,43 @@ def get_parser():
     return parser
 
 def run(args):
-        random.seed(args.seed)
+    random.seed(args.seed)
 
-        if os.path.isabs(args.input_directory) == False:
-            args.input_directory = os.path.normpath(os.path.join(os.getcwd(), args.input_directory))
-        if os.path.isabs(args.output_directory) == False:
-            original_output_dir = os.path.normpath(os.path.join(os.getcwd(), args.output_directory))
-        else:
-            original_output_dir = args.output_directory
-        
-        if os.path.exists(args.input_directory) == False or os.path.isdir(args.input_directory) == False:
-            raise Exception("The input directory does not exist, Please re-check the input arguments!")
+    if os.path.isabs(args.input_directory) == False:
+        args.input_directory = os.path.normpath(os.path.join(os.getcwd(), args.input_directory))
+    if os.path.isabs(args.output_directory) == False:
+        original_output_dir = os.path.normpath(os.path.join(os.getcwd(), args.output_directory))
+    else:
+        original_output_dir = args.output_directory
+    
+    if os.path.exists(args.input_directory) == False or os.path.isdir(args.input_directory) == False:
+        raise Exception("The input directory does not exist, Please re-check the input arguments!")
 
-        if os.path.exists(original_output_dir) == False:
-            os.makedirs(original_output_dir)
+    if os.path.exists(original_output_dir) == False:
+        os.makedirs(original_output_dir)
 
-        i = 0
-        full_header_files, full_recording_files = find_records(args.input_directory, original_output_dir)
-        
-        for full_header_file, full_recording_file in zip(full_header_files, full_recording_files):
-            filename = full_recording_file
-            header = full_header_file
-            args.input_file = os.path.join(args.input_directory, filename)
-            args.header_file = os.path.join(args.input_directory, header)
-            args.start_index = -1
+    i = 0
+    full_header_files, full_recording_files = find_records(args.input_directory, original_output_dir)
+    
+    for full_header_file, full_recording_file in tqdm(zip(full_header_files, full_recording_files),
+                                                      total=len(full_header_files)):
+        filename = full_recording_file
+        header = full_header_file
+        args.input_file = os.path.join(args.input_directory, filename)
+        args.header_file = os.path.join(args.input_directory, header)
+        args.start_index = -1
 
-            folder_struct_list = full_header_file.split('/')[:-1]
-            args.output_directory = os.path.join(original_output_dir, '/'.join(folder_struct_list))
-            
-            i += run_single_file(args)
+        folder_struct_list = full_header_file.split('/')[:-1]
+        args.output_directory = os.path.join(original_output_dir, '/'.join(folder_struct_list))
 
-            if(args.num_images != -1 and i >= args.num_images):
-                break
+        if os.path.exists(os.path.join(args.output_directory, filename.replace('.mat', '-0.png'))):
+            print("Skipping file: ", filename)
+            i += 1
+            continue
+        i += run_single_file(args)
+
+        if(args.num_images != -1 and i >= args.num_images):
+            break
 
 if __name__=='__main__':
     run(get_parser().parse_args(sys.argv[1:]))

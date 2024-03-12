@@ -99,7 +99,7 @@ def load_header(header_file):
     return header
 
 # Load recording file as an array.
-def load_recording(recording_file, header=None,key='val'):
+def load_recording(recording_file, header=None, key='val'):
     rootname,extension = os.path.splitext(recording_file)
     #Load files differently based on file format
     if extension=='.dat':
