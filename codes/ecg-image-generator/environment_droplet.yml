@@ -1,4 +1,4 @@
-name: myenv
+name: ecg_image
 channels:
   - defaults
 dependencies:
