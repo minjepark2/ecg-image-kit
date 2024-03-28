@@ -269,7 +269,7 @@ def write_wfdb_file(ecg_frame, filename, rate, header_file, write_dir, full_mode
 
         arr = ecg_frame[lead]
         arr = np.array(arr)
-        arr[arr == np.nan] = BIT_NAN_16/adc_gn
+        arr[np.isnan(arr)] = BIT_NAN_16/adc_gn
         arr = arr.reshape((1, arr.shape[0]))
         array = np.concatenate((array, arr),axis = 0)
     
