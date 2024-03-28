@@ -43,8 +43,9 @@ def get_paper_ecg(input_file,header_file,output_directory, seed, add_dc_pulse,ad
     recording = load_recording(full_recording_file, full_header,key)
            
     # Get values from header
-    rate = get_frequency(full_header)
-    adc = get_adc_gains(full_header,full_leads)
+    header = wfdb.rdheader(os.path.splitext(full_header_file)[0])
+    rate = header.fs
+    adc = header.adc_gain
     full_leads = standardize_leads(full_leads)
 
     if(len(full_leads)==2):
