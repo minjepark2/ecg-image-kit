@@ -71,7 +71,7 @@ def generate_template(header_file):
             attributes['Weight'] = 'Weight: ' + attributes['Weight'] + ' Kgs'
         
         attributes['Height'] = 'Height: ' + attributes['Height']
-        
+
         attributes['Date'] = str(attributes['Date'])
         attributes['Date'] = 'Date: '+  attributes['Date'] + ', ' + attributes['Time']
         attributes['Sex'] = 'Sex: ' + attributes['Sex']

@@ -272,17 +272,23 @@ def write_wfdb_file(ecg_frame, filename, rate, header_file, write_dir, full_mode
         arr[np.isnan(arr)] = BIT_NAN_16/adc_gn
         arr = arr.reshape((1, arr.shape[0]))
         array = np.concatenate((array, arr),axis = 0)
-    
+
     head, tail  = os.path.split(filename)
     
     array = array[1:]
-    wfdb.wrsamp(record_name = tail, 
-                fs = rate, units = header.units,
-                sig_name = leads, p_signal = array.T, fmt = header.fmt,
-                adc_gain = header.adc_gain, baseline = header.baseline, 
-                base_time = header.base_time, base_date = header.base_date, 
-                write_dir = write_dir)
-    
+
+    wfdb.wrsamp(record_name=tail, 
+                fs=rate,
+                units=header.units,
+                sig_name=leads,
+                p_signal=array.T,
+                fmt=header.fmt,
+                adc_gain=header.adc_gain,
+                baseline=header.baseline, 
+                base_time=header.base_time,
+                base_date=header.base_date, 
+                write_dir=write_dir)
+
     with open(os.path.join(write_dir, tail + '.hea'), "a") as f:
         for line in header.comments:
             f.write("#" + line)
