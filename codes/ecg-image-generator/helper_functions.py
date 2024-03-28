@@ -172,10 +172,8 @@ def create_signal_dictionary(signal,full_leads):
         
     return record_dict
 
-def samples_to_volts(signal,adc_gain):
-    signal_threshold = 10
-    if(np.max(signal))>10:
-        signal = signal/adc_gain
+def samples_to_volts(signal, adc_gain):
+    signal = signal/adc_gain
     return signal
 
 def standardize_leads(full_leads):
